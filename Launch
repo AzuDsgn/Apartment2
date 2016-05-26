@@ -1,0 +1,198 @@
+
+<!-- saved from url=(0044)http://apartments.xerasin.com/web/basic.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<style>
+			body{
+				background: -webkit-radial-gradient(center, ellipse cover, rgb(50,50,50),rgba(0,0,0,15.5) 100%);
+				background-color:black;
+				overflow:hidden;
+				font-family: 'C0olvetica',Helvetica;
+			}
+			div.roomName{display: inline;}
+			div.LocalPlayerName{display: inline;}
+			div.center{	
+				text-align: center;
+				font-size: 50px;
+				color: white;
+			}
+			#thumbnail{
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-position:center;
+				z-index:-1;
+				position:relative;
+			}
+			@font-face {
+				font-family: Coolvetica;
+				src: url("fonts/coolvetica rg.ttf");
+			}
+				.shadowed {text-shadow: 2px 0px 2px black,-2px 0px 2px black,0px 2px 2px black,0px -2px 2px black}
+				.strikethrough{text-decoration: line-through}
+			header{
+				padding: 0 !important;
+				overflow-x: hidden;
+				background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(0,0,0,1)), color-stop(30%,rgba(0,0,0,0))),
+							-webkit-gradient(linear, left top, right top, color-stop(70%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,1))),
+				position: relative;
+				overflow: hidden;
+				height: 30%;
+			}
+			#railings{
+				overflow: hidden;
+				z-index: 1;
+				position: absolute;
+				height: 100%;
+				width: 150%;
+				background-size: contain;
+				-webkit-animation: slideshow 3s linear infinite;
+			}
+			#header_logo{
+				position: absolute;
+				display: inline-block;
+				z-index: 3;
+				left: 20%;
+				margin-top:-50px;
+				font-size: 70px;
+			}
+			@-webkit-keyframes slideshow {
+			  0%    { left: 0;}
+			  100%  { left: -558px; }
+			}
+			@keyframes slideshow {
+			  0%    { left: 0;}
+			  100%  { left: -558px; }
+			}
+			#welcomesubtext{font-size:45px;margin-top:-30px;}
+			.roomName{color:lightgreen}
+			.LocalPlayerName{color:lightblue}
+			main{height:60%}
+			#videoTitle{width:80%;position:absolute;bottom:0;left:10%}
+			#progressbar{height:30%;background-color:rebeccapurple}
+			#time_played,#time_total{top:0;width:100px;display:inline-block;font-size:40px;color:white}
+			#time_played{float:left}
+			#time_total{float:right}
+			#smallerinfo{font-size:20px}
+			#roomInfo{float:right;color:white}
+			#players{float:left;color:white}
+			#playerList{-webkit-padding-start: 0px;list-style: none;}
+			.userAvatar{vertical-align:middle}
+			#canQueue,#canSkip{height:30px;background-color:#383838;padding:5px;border-radius:7px;vertical-align:middle}
+		</style>
+		<script src="./basic_files/jquery-2.2.3.min.js"> </script>
+		<script src="./basic_files/gcinemaapartmentapi.js"> </script>
+		<script type="text/javascript">
+			/*gcinema.setCallback("LocalPlayerName", "roomNameSetup", function(key, value)
+			{
+				$("#blah").html(value)
+			});*/
+			function secondsTimeSpanToHMS(s) {
+				var m = Math.floor(s/60);
+				s -= m*60;
+				return (m < 10 ? '0'+m : m)+":"+(s < 10 ? '0'+s : s);
+			}
+			
+			gcinema.setCallback("Title", "UpdateStuff", function(key, value)
+			{
+					if (value == "Nothing" || value == ""){
+						$("#videoTitle").html('Nothing currently playing').css('color','white');
+					}
+					else{
+						$("#videoTitle").html('Currently playing: <br />'+value).css('color','gold');
+						$('#time_total').html(secondsTimeSpanToHMS(gcinema.get('Length')));
+					}
+			});
+			gcinema.setCallback("CurTime", "UpdateProgress", function(key, value){
+				if (value == "Nothing" || value == ""|| gcinema.get('Title') == "Nothing"){
+					$('#progressbar').hide();
+				}else{
+						var percent = Math.min(((value - gcinema.get('CurStart')) / gcinema.get('Length') * 100),100);
+						$('#progressbar').show().css('background','-webkit-linear-gradient(left, #ff3a3a '+percent+'%,#393089 '+percent+'%)');
+						$('#time_played').html(secondsTimeSpanToHMS(Math.min(Math.round(value) - Math.round(gcinema.get('CurStart')),Math.round(gcinema.get('Length')))));
+					
+				}
+			});
+			gcinema.setCallback("Thumbnail", "StartMusic", function(key, value)
+			{
+				var song = $("#thumbnail").get(0);
+				if(typeof song !== "undefined")
+				{
+					if (value == "Nothing" || value == "")
+					{
+						$(song).css('background-image','url('+"http://apartments.xerasin.com/web/transparent.png"+')');
+					}
+					else
+					{
+						$(song).css('background-image','url('+value+')');
+					}
+				}
+			});
+			gcinema.setCallback("canQueue", "ChangeQueueId", function(key, value){
+				if(value == true || value == 'true'){
+					$('#canQueue_text').removeClass('strikethrough');
+					$('#canQueue').css('background-color','white');
+				} else {
+					$('#canQueue_text').addClass('strikethrough');
+					$('#canQueue').css('background-color','#383838');
+				}
+			});
+			gcinema.setCallback("canSkip", "ChangeSkipId", function(key, value){
+				if(value == true || value == 'true'){
+					$('#canSkip_text').removeClass('strikethrough');
+					$('#canSkip').css('background-color','white');
+				} else {
+					$('#canSkip_text').addClass('strikethrough');
+					$('#canSkip').css('background-color','#383838');
+				}
+			});
+			gcinema.setCallback("Users", "UpdateUsers", function(key, value){
+				//var userTable = JSON.parse(value); // Automatically deJSON'd??!!
+				var userTable = value;
+				$('#playerList').empty();
+				userTable.forEach(function(val,index,arr){
+					$('<li><img src="https://www.gcinema.net/loadingscreen/avatar.php?sid='+val['ID']+'" class="userAvatar" /><span style="color:rgb('+val['color']['r']+','+val['color']['g']+','+val['color']['b']+')">'+val['name']+'</span></li>').appendTo('#playerList');
+				});
+				
+			});
+		</script>
+	</head>
+	
+
+	<body>
+	<header>	
+		<div id="railings"></div>
+		<div id="header_logo" class="shadowed">
+			<h1 style="padding: 0 !important;margin: 0 !important;display: inline-block;">
+				<span style="color:#3AF;font-family:Coolvetica">A</span><span style="color:#3D6;font-family:Coolvetica">zu</span> <span style="color: #FFF;font-family:Coolvetica;">VR</span>
+			</h1>
+			<div class="center shadowed" id="welcomesubtext"> Greetings, <b><div class="LocalPlayerName"><undefined></undefined></div></b>!</div>
+		</div>
+	</header>
+	<main id="thumbnail">
+		<div class="center shadowed">- <div class="roomName">roomName</div> -<br></div>
+	<aside id="roomInfo">
+		<span id="smallerinfo" class="shadowed"><img src="./basic_files/canqueue.png" id="canQueue"><span id="canQueue_text"> Can queue</span>
+		<br><br>
+		<img src="./basic_files/skip.png" id="canSkip"> <span id="canSkip_text">Can skip</span></span>
+	</aside>
+	<aside id="players">
+		<ul id="playerList">
+		</ul>
+	</aside>
+		<div id="videoTitle" class="center shadowed" style="font-size:35px;">Nothing</div>
+		<!--<audio id="boop">
+			<source src="boop1.ogg" type="audio/ogg" id="test">
+		</audio>-->
+		
+		<br><br>
+		<img src="./basic_files/transparent.png" id="thumbnail"> 
+	</main>
+	<footer id="progressbar">
+		<span id="time_played" class="shadowed"></span>
+		<span id="time_total" class="shadowed"></span>
+	</footer>
+	
+
+</body></html>
